@@ -14,6 +14,8 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include <windows.h>
+#include <wingdi.h>
 
 #define PI 3.1415926
 using namespace std;
@@ -43,93 +45,8 @@ float angle = 0;
 Vec3f moving_position = Vec3f(0, 0, 0);
 Vec3f center_position = Vec3f(0, 0, 0);
 
-// Update
-/*struct Mesh {
-	// vertex
-	vector<Vec3f> dot_vertex;
-	vector<Vec3f> dot_normalPerFace;
-	vector<Vec3f> dot_normalPerVertex;
-	vector<Vec2f> dot_texture;
-	// faces
-	vector<int> face_index_vertex;
-	vector<int> face_index_normalPerFace;
-	vector<int> face_index_normalPerVertex;
-	vector<int> face_index_texture;
-};
 
-Mesh* mesh1;
-*/
 GLuint displayPlane;
-
-// normal per face
-/*void calculateNormalPerFace(Mesh* m) {
-	Vec3<float> v1, v2, v3, v4, v5;
-	for (int i = 0; i < m->face_index_vertex.size(); i += 3) {
-		v1 = m->dot_vertex[m->face_index_vertex[i]];
-		v2 = m->dot_vertex[m->face_index_vertex[i + 1]];
-		v3 = m->dot_vertex[m->face_index_vertex[i + 2]];
-		v4 = (v2 - v1);
-		v5 = (v3 - v1);
-		v4 = v4.cross(v5);
-		v4.normalize();
-		m->dot_normalPerFace.push_back(v4);
-		int pos = m->dot_normalPerFace.size() - 1;
-		// same normal for all vertex in this face
-		m->face_index_normalPerFace.push_back(pos);
-		m->face_index_normalPerFace.push_back(pos);
-		m->face_index_normalPerFace.push_back(pos);
-	}
-}*/
-
-// calculate normal per vertex
-/*
-void calculateNormalPerVertex(Mesh* m) {
-	m->dot_normalPerVertex.clear();
-	m->face_index_normalPerVertex.clear();
-	Vec3<float> suma; suma.x = 0; suma.y = 0; suma.z = 0;
-	//initialize
-	for (unsigned int val = 0; val < m->dot_vertex.size(); val++) {
-		m->dot_normalPerVertex.push_back(suma);
-	}
-	// calculate sum for vertex
-	for (long pos = 0; pos < m->face_index_vertex.size(); pos++) {
-		m->dot_normalPerVertex[m->face_index_vertex[pos]] +=
-			m->dot_normalPerFace[m->face_index_normalPerFace[pos]];
-	}
-	// normalize for vertex 
-	for (unsigned int val = 0; val < m->dot_normalPerVertex.size(); val++) {
-		m->dot_normalPerVertex[val] = m->dot_normalPerVertex[val].normalize();
-	}
-	//normalVertexIndex is the same that vertexIndex
-	for (unsigned int pos = 0; pos < m->face_index_vertex.size(); pos++) {
-		m->face_index_normalPerVertex.push_back(m->face_index_vertex[pos]);
-	}
-}
-*/
-// creating a triangulated plane
-/*Mesh* createPlane(int arena_width, int arena_depth, int arena_cell) {
-	Mesh *me = new Mesh;
-	int n = arena_width / arena_cell;
-	int m = arena_depth / arena_cell;
-	// vertices
-	for (int i = 0; i<n; i++) {
-		for (int j = 0; j < m; j++) {
-			me->dot_vertex.push_back(Vec3<GLfloat>(i*arena_cell, 0.0, j*arena_cell));
-		}
-	}
-	// faces
-	for (int i = 0; i<(n*m) - m; i++) {
-		if ((i + 1) % n == 0) continue;
-		me->face_index_vertex.push_back(i); me->face_index_vertex.push_back(i + 1);
-		me->face_index_vertex.push_back(i + n);
-		me->face_index_vertex.push_back(i + 1); me->face_index_vertex.push_back(i + n + 1);
-		me->face_index_vertex.push_back(i + n);
-	}
-	return me;
-}*/
-
-#include <windows.h>
-#include <wingdi.h>
 
 GLuint textureArray[3];
 
@@ -289,40 +206,11 @@ void drawHouse() {
 
 }
 
-// draw
-/*GLuint meshToDisplayList(Mesh* m, int id) {
-	GLuint listID = glGenLists(id);
-	glNewList(listID, GL_COMPILE);
-	glBegin(GL_TRIANGLES);
-
-	for (unsigned int i = 0; i < m->face_index_vertex.size(); i++) {
-		// PER VERTEX NORMALS
-		if ((!m->dot_normalPerVertex.empty() && !m->face_index_normalPerVertex.empty())) {
-			glNormal3fv(&m->dot_normalPerVertex[m->face_index_normalPerVertex[i]].x);
-		}
-		if (!m->dot_texture.empty() && !m->face_index_texture.empty()) {
-			glTexCoord2fv(&m->dot_texture[m->face_index_texture[i]].x);
-		}
-		// color
-		Vec3f offset = (m->dot_vertex[m->face_index_vertex[i]]);
-		//
-		glColor3f(fabs(sin(offset.x)), fabs(cos(offset.y)), fabs(offset.z));
-		glVertex3fv(&m->dot_vertex[m->face_index_vertex[i]].x);
-	}
-	glEnd();
-	glEndList();
-	return listID;
-}*/
-
 // init
 void init() {
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
 	ratio = (double)width / (double)height;
-	// mesh
-	//mesh1 = createPlane(1000, 1000, 40);
-	//calculateNormalPerFace(mesh1);
-	//calculateNormalPerVertex(mesh1);
 	glEnable(GL_TEXTURE_2D);
 	bmpTexture(textureArray, "brick.bmp", 0);
 	bmpTexture(textureArray, "cobblestone.bmp", 1);
