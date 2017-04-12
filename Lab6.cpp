@@ -1,16 +1,17 @@
 /*
- * Authors: Jacob Leonard, Tyler Compton, Cecilia La Place
- * Lab 6: Textures
- */
+* Authors: Jacob Leonard, Tyler Compton, Cecilia La Place
+* Lab 6: Textures
+*/
 //Create room (box)
 //Put camera inside
 //Add textures (whatever file type) inside walls, different for wall ceiling an floor
 //Walls - do not do |\| instead do squares |\|\|\| use floor function change coordinates
 // creating a triangulated plane
 
+#include "stdafx.h"
+
 #include <vector>
-#include "imathvec.h"
-#include "gl/glut.h"
+#include "glut.h"
 #include<iostream>
 #include<fstream>
 #include<string>
@@ -19,7 +20,6 @@
 
 #define PI 3.1415926
 using namespace std;
-using namespace Imath;
 
 int width = 1200;
 int height = 600;
@@ -33,17 +33,8 @@ float scale = 0.3;
 float x_angle = 0.0;
 float y_angle = 0.0;
 
-float numPlanes = 4;
-float PLANE_SIZE = 10;
-
-// mesh
-typedef Vec3<float> Vec3f;
-typedef Vec2<float> Vec2f;
-
-// global moving
-float angle = 0;
-Vec3f moving_position = Vec3f(0, 0, 0);
-Vec3f center_position = Vec3f(0, 0, 0);
+float numPlanes = 10;
+float PLANE_SIZE = 1;
 
 
 GLuint displayPlane;
@@ -125,23 +116,24 @@ GLuint createPlane() {
 	GLuint listID = glGenLists(1);
 
 	glNewList(listID, GL_COMPILE);
-	glBindTexture(GL_TEXTURE_2D, textureArray[0]);
-	
+
+	glColor3f(1, 1, 1);
+
 	glBegin(GL_TRIANGLES);
 
 	glTexCoord2d(0, 0);
 	glVertex3d(0, 0, 0);
 	glTexCoord2d(1, 0);
-	glVertex3d(10, 0, 0);
+	glVertex3d(1, 0, 0);
 	glTexCoord2d(0, 1);
-	glVertex3d(0, 0, 10);
+	glVertex3d(0, 0, 1);
 
 	glTexCoord2d(1, 1);
-	glVertex3d(10, 0, 10);
+	glVertex3d(1, 0, 1);
 	glTexCoord2d(1, 0);
-	glVertex3d(10, 0, 0);
+	glVertex3d(1, 0, 0);
 	glTexCoord2d(0, 1);
-	glVertex3d(0, 0, 10);
+	glVertex3d(0, 0, 1);
 
 	glEnd();
 
@@ -155,39 +147,47 @@ void drawMultiPlane(int width, int height) {
 	glPushMatrix();
 
 	for (int x = 0; x<width; x++) {
-		for (int y = 0; y<height; y++) {
+		for (int y = 0; y < height; y++) {
+			glPushMatrix();
+			glTranslated(x*PLANE_SIZE, 0, y*PLANE_SIZE);
 			glCallList(displayPlane);
-			glTranslated(PLANE_SIZE, 0, 0);
+			glPopMatrix();
 		}
-		glTranslated(-PLANE_SIZE*width, 0, PLANE_SIZE);
 	}
 
 	glPopMatrix();
 }
 
 void drawHouse() {
+	glPushMatrix();
+
 	float ROOM_SIZE = PLANE_SIZE*numPlanes;
-	glTranslated(-ROOM_SIZE / 2, 0, -ROOM_SIZE / 2);
+	glTranslated(-ROOM_SIZE / 2, -ROOM_SIZE / 2, -ROOM_SIZE / 2);
 
 	// draw floor
+	glBindTexture(GL_TEXTURE_2D, textureArray[1]);
 	drawMultiPlane(10, 10);
 
 	// draw ceiling
 	glPushMatrix();
+	glBindTexture(GL_TEXTURE_2D, textureArray[2]);
 	glTranslated(0, ROOM_SIZE, 0);
 	drawMultiPlane(10, 10);
 	glPopMatrix();
 
+	// We're drawing walls, so we'll use the wall texture
+	glBindTexture(GL_TEXTURE_2D, textureArray[0]);
+
 	// Draw back wall
 	glPushMatrix();
-	glRotated(90, 1, 0, 0);
+	glRotated(-90, 1, 0, 0);
 	drawMultiPlane(10, 10);
 	glPopMatrix();
 
 	// Draw forward wall
 	glPushMatrix();
 	glTranslated(0, 0, ROOM_SIZE);
-	glRotated(90, 1, 0, 0);
+	glRotated(-90, 1, 0, 0);
 	drawMultiPlane(10, 10);
 	glPopMatrix();
 
@@ -202,6 +202,8 @@ void drawHouse() {
 	glTranslated(ROOM_SIZE, 0, 0);
 	glRotated(90, 0, 0, 1);
 	drawMultiPlane(10, 10);
+	glPopMatrix();
+
 	glPopMatrix();
 
 }
@@ -255,11 +257,10 @@ void display(void) {
 	glPushMatrix();
 	//glTranslatef(-500, 0, -500);
 	//glRotatef(5.0, 1.0, 0.0, 0.0);
-	glColor3f(1.0, 0.0, 1.0);
 	//glCallList(displayPlane);
 	drawHouse();
 	glPopMatrix();
-	
+
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
